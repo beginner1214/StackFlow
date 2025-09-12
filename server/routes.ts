@@ -125,6 +125,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(channels);
     } catch (error) {
       console.error('Failed to fetch channels:', error);
+      
+      if (error instanceof Error && error.message === 'Slack client not available') {
+        return res.status(401).json({ error: 'Slack connection not available or expired' });
+      }
+      
       res.status(500).json({ error: 'Failed to fetch channels' });
     }
   });
@@ -140,9 +145,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const messageTs = await slackService.sendMessage(teamId, userId, channel, message);
+      
+      // Track immediate send for stats
+      try {
+        await storage.incrementMessageSent(teamId, userId);
+      } catch (statsError) {
+        console.warn('Failed to update message stats:', statsError);
+        // Don't fail the request if stats update fails
+      }
+      
       res.json({ success: true, messageTs });
     } catch (error) {
       console.error('Failed to send message:', error);
+      
+      if (error instanceof Error) {
+        if (error.message === 'Slack client not available') {
+          return res.status(401).json({ error: 'Slack connection not available or expired' });
+        }
+        
+        // Handle specific Slack API errors
+        if (error.message.includes('channel_not_found')) {
+          return res.status(400).json({ error: 'Channel not found or not accessible' });
+        }
+        
+        if (error.message.includes('not_in_channel')) {
+          return res.status(400).json({ error: 'Bot not in channel or insufficient permissions' });
+        }
+        
+        if (error.message.includes('rate_limited')) {
+          return res.status(429).json({ error: 'Rate limited - please try again later' });
+        }
+        
+        // Return specific Slack error for better UX
+        return res.status(400).json({ error: error.message });
+      }
+      
       res.status(500).json({ error: 'Failed to send message' });
     }
   });
@@ -206,9 +243,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { teamId, userId } = req.params;
       const messages = await storage.getScheduledMessages(teamId, userId);
       const channels = await storage.getSlackChannels(teamId);
+      const immediateSends = await storage.getMessagesSentCount(teamId, userId);
 
       const stats = {
-        messagesSent: messages.filter(m => m.status === 'sent').length,
+        messagesSent: messages.filter(m => m.status === 'sent').length + immediateSends,
         scheduledMessages: messages.filter(m => m.status === 'pending').length,
         activeChannels: channels.length,
       };
