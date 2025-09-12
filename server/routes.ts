@@ -13,7 +13,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Slack OAuth routes
   app.get("/api/slack/auth", async (req, res) => {
     try {
-      const authUrl = await slackService.getAuthUrl();
+      const { authUrl, state } = await slackService.getAuthUrl(req);
+      
+      // Store state in httpOnly cookie for CSRF protection
+      res.cookie('oauth_state', state, {
+        httpOnly: true,
+        secure: !req.get('host')?.includes('localhost'), // HTTPS in production, HTTP for localhost
+        sameSite: 'strict',
+        maxAge: 10 * 60 * 1000, // 10 minutes
+      });
+      
       res.json({ authUrl });
     } catch (error) {
       console.error('Failed to get auth URL:', error);
@@ -23,12 +32,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/slack/oauth/callback", async (req, res) => {
     try {
-      const { code } = req.body;
+      const { code, state } = req.body;
       if (!code) {
         return res.status(400).json({ error: 'Authorization code required' });
       }
+      
+      if (!state) {
+        return res.status(400).json({ error: 'State parameter required' });
+      }
 
-      const tokenData = await slackService.exchangeCodeForToken(code);
+      // Retrieve stored state from cookie
+      const storedState = req.cookies?.oauth_state;
+      if (!storedState) {
+        return res.status(400).json({ error: 'Missing stored state - possible CSRF attack' });
+      }
+
+      const tokenData = await slackService.exchangeCodeForToken(code, state, storedState, req);
+      
+      // Clear the state cookie after successful verification
+      res.clearCookie('oauth_state');
+      
       res.json({ 
         success: true,
         team: {
@@ -41,7 +64,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error('OAuth callback failed:', error);
-      res.status(500).json({ error: 'Failed to complete OAuth flow' });
+      
+      // Clear state cookie on error too
+      res.clearCookie('oauth_state');
+      
+      if (error instanceof Error && error.message?.includes('state parameter')) {
+        res.status(400).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: 'Failed to complete OAuth flow' });
+      }
     }
   });
 
