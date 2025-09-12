@@ -34,6 +34,10 @@ export interface IStorage {
   getSlackChannels(teamId: string): Promise<SlackChannel[]>;
   createSlackChannel(channel: InsertSlackChannel): Promise<SlackChannel>;
   updateChannelLastUsed(channelId: string, teamId: string): Promise<void>;
+
+  // Message statistics
+  incrementMessageSent(teamId: string, userId: string): Promise<void>;
+  getMessagesSentCount(teamId: string, userId: string): Promise<number>;
 }
 
 export class MemStorage implements IStorage {
@@ -41,12 +45,14 @@ export class MemStorage implements IStorage {
   private slackTokens: Map<string, SlackToken>;
   private scheduledMessages: Map<string, ScheduledMessage>;
   private slackChannels: Map<string, SlackChannel>;
+  private messageCounts: Map<string, number>;
 
   constructor() {
     this.users = new Map();
     this.slackTokens = new Map();
     this.scheduledMessages = new Map();
     this.slackChannels = new Map();
+    this.messageCounts = new Map();
   }
 
   // Legacy user methods
@@ -183,6 +189,22 @@ export class MemStorage implements IStorage {
     if (channel) {
       channel.lastUsed = new Date();
     }
+  }
+
+  // Message statistics methods
+  private getStatsKey(teamId: string, userId: string): string {
+    return `${teamId}-${userId}`;
+  }
+
+  async incrementMessageSent(teamId: string, userId: string): Promise<void> {
+    const key = this.getStatsKey(teamId, userId);
+    const current = this.messageCounts.get(key) || 0;
+    this.messageCounts.set(key, current + 1);
+  }
+
+  async getMessagesSentCount(teamId: string, userId: string): Promise<number> {
+    const key = this.getStatsKey(teamId, userId);
+    return this.messageCounts.get(key) || 0;
   }
 }
 
