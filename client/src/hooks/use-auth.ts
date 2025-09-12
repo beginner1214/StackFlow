@@ -58,7 +58,7 @@ export function useAuth() {
     userId,
     teamName: status?.team?.name || teamName,
     isConnected: !!(teamId && userId && status?.connected),
-    isLoading: isLoading || (!teamId || !userId),
+    isLoading: !!(teamId && userId && isLoading),
     disconnect,
   };
 }

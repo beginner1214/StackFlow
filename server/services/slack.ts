@@ -1,6 +1,7 @@
 import { WebClient } from "@slack/web-api";
 import { storage } from "../storage";
 import type { SlackToken } from "@shared/schema";
+import { randomBytes } from "crypto";
 
 class SlackService {
   private clients: Map<string, WebClient> = new Map();
@@ -157,13 +158,36 @@ class SlackService {
     }
   }
 
-  async getAuthUrl(): Promise<string> {
+  async getAuthUrl(req?: any): Promise<{ authUrl: string; state: string }> {
     const clientId = process.env.SLACK_CLIENT_ID;
-    const redirectUri = process.env.SLACK_REDIRECT_URI;
+    let redirectUri = process.env.SLACK_REDIRECT_URI;
 
-    if (!clientId || !redirectUri) {
+    if (!clientId) {
       throw new Error('Slack OAuth credentials not configured');
     }
+
+    // Generate redirect URI dynamically if in Replit environment
+    let isLocalhost = false;
+    if (req && req.get('host')) {
+      const host = req.get('host');
+      isLocalhost = host.includes('localhost') || host.includes('127.0.0.1');
+      
+      if (!isLocalhost) {
+        // Replit/hosted environment - use HTTPS
+        const protocol = req.get('x-forwarded-proto') || 'https';
+        redirectUri = `${protocol}://${host}/oauth/callback`;
+      }
+    }
+    
+    if (!redirectUri) {
+      throw new Error('Slack redirect URI not configured');
+    }
+
+    // Only force HTTPS for non-localhost environments
+    const secureRedirectUri = isLocalhost ? redirectUri : redirectUri.replace('http://', 'https://');
+
+    // Generate cryptographically secure state for CSRF protection
+    const state = randomBytes(32).toString('hex');
 
     const scopes = [
       'channels:read',
@@ -176,22 +200,49 @@ class SlackService {
     const params = new URLSearchParams({
       client_id: clientId,
       scope: scopes.join(','),
-      redirect_uri: redirectUri,
+      redirect_uri: secureRedirectUri,
       response_type: 'code',
       access_type: 'offline',
+      state,
     });
 
-    return `https://slack.com/oauth/v2/authorize?${params.toString()}`;
+    const authUrl = `https://slack.com/oauth/v2/authorize?${params.toString()}`;
+    return { authUrl, state };
   }
 
-  async exchangeCodeForToken(code: string): Promise<SlackToken> {
+  async exchangeCodeForToken(code: string, state: string, storedState: string, req?: any): Promise<SlackToken> {
     const clientId = process.env.SLACK_CLIENT_ID;
     const clientSecret = process.env.SLACK_CLIENT_SECRET;
-    const redirectUri = process.env.SLACK_REDIRECT_URI;
+    let redirectUri = process.env.SLACK_REDIRECT_URI;
 
-    if (!clientId || !clientSecret || !redirectUri) {
+    if (!clientId || !clientSecret) {
       throw new Error('Slack OAuth credentials not configured');
     }
+
+    // Validate state parameter for CSRF protection
+    if (!state || !storedState || state !== storedState) {
+      throw new Error('Invalid or missing state parameter - possible CSRF attack');
+    }
+
+    // Generate redirect URI dynamically if in Replit environment (must match authorization)
+    let isLocalhost = false;
+    if (req && req.get('host')) {
+      const host = req.get('host');
+      isLocalhost = host.includes('localhost') || host.includes('127.0.0.1');
+      
+      if (!isLocalhost) {
+        // Replit/hosted environment - use HTTPS
+        const protocol = req.get('x-forwarded-proto') || 'https';
+        redirectUri = `${protocol}://${host}/oauth/callback`;
+      }
+    }
+    
+    if (!redirectUri) {
+      throw new Error('Slack redirect URI not configured');
+    }
+
+    // Only force HTTPS for non-localhost environments (must match authorization)
+    const secureRedirectUri = isLocalhost ? redirectUri : redirectUri.replace('http://', 'https://');
 
     const client = new WebClient();
 
@@ -200,7 +251,7 @@ class SlackService {
         client_id: clientId,
         client_secret: clientSecret,
         code,
-        redirect_uri: redirectUri,
+        redirect_uri: secureRedirectUri,
       });
 
       if (!result.ok || !result.access_token) {
