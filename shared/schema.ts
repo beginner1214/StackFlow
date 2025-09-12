@@ -49,6 +49,7 @@ export const insertScheduledMessageSchema = createInsertSchema(scheduledMessages
   id: true,
   createdAt: true,
   sentAt: true,
+  status: true, // Server controls status
 });
 
 export const insertSlackChannelSchema = createInsertSchema(slackChannels).omit({

@@ -190,6 +190,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { teamId, userId } = req.params;
       const messageData = { ...req.body, teamId, userId };
 
+      // Convert scheduledFor string to Date object for validation
+      if (messageData.scheduledFor && typeof messageData.scheduledFor === 'string') {
+        messageData.scheduledFor = new Date(messageData.scheduledFor);
+      }
+
+      // Validate future date
+      if (messageData.scheduledFor && messageData.scheduledFor <= new Date()) {
+        return res.status(400).json({ error: 'Scheduled time must be in the future' });
+      }
+
+      // Server controls status - always set to pending
+      messageData.status = 'pending';
+
       const validatedData = insertScheduledMessageSchema.parse(messageData);
       const scheduledMessage = await storage.createScheduledMessage(validatedData);
       
@@ -216,13 +229,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Cancel scheduled message
-  app.delete("/api/messages/scheduled/:id", async (req, res) => {
+  app.delete("/api/messages/scheduled/:teamId/:userId/:id", async (req, res) => {
     try {
-      const { id } = req.params;
+      const { teamId, userId, id } = req.params;
       const message = await storage.getScheduledMessage(id);
       
       if (!message) {
         return res.status(404).json({ error: 'Message not found' });
+      }
+
+      // Verify ownership
+      if (message.teamId !== teamId || message.userId !== userId) {
+        return res.status(403).json({ error: 'Not authorized to cancel this message' });
       }
 
       if (message.status !== 'pending') {

@@ -30,7 +30,7 @@ export default function ScheduledMessages() {
 
   const cancelMutation = useMutation({
     mutationFn: async (messageId: string) => {
-      return apiRequest('DELETE', `/api/messages/scheduled/${messageId}`);
+      return apiRequest('DELETE', `/api/messages/scheduled/${teamId}/${userId}/${messageId}`);
     },
     onSuccess: () => {
       toast({
