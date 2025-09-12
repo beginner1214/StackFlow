@@ -1,0 +1,456 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(210, 40%, 98%);
+  --foreground: hsl(222.2, 84%, 4.9%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(222.2, 84%, 4.9%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(222.2, 84%, 4.9%);
+  --primary: hsl(221.2, 83.2%, 53.3%);
+  --primary-foreground: hsl(210, 40%, 98%);
+  --secondary: hsl(210, 40%, 96%);
+  --secondary-foreground: hsl(222.2, 84%, 4.9%);
+  --muted: hsl(210, 40%, 96%);
+  --muted-foreground: hsl(215.4, 16.3%, 46.9%);
+  --accent: hsl(210, 40%, 96%);
+  --accent-foreground: hsl(222.2, 84%, 4.9%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --border: hsl(214.3, 31.8%, 91.4%);
+  --input: hsl(214.3, 31.8%, 91.4%);
+  --ring: hsl(221.2, 83.2%, 53.3%);
+  --chart-1: hsl(221.2, 83.2%, 53.3%);
+  --chart-2: hsl(159.7826, 100%, 36.0784%);
+  --chart-3: hsl(42.0290, 92.8251%, 56.2745%);
+  --chart-4: hsl(147.1429, 78.5047%, 41.9608%);
+  --chart-5: hsl(341.4894, 75.2000%, 50.9804%);
+  --sidebar: hsl(0, 0%, 100%);
+  --sidebar-foreground: hsl(222.2, 84%, 4.9%);
+  --sidebar-primary: hsl(221.2, 83.2%, 53.3%);
+  --sidebar-primary-foreground: hsl(210, 40%, 98%);
+  --sidebar-accent: hsl(210, 40%, 96%);
+  --sidebar-accent-foreground: hsl(222.2, 84%, 4.9%);
+  --sidebar-border: hsl(214.3, 31.8%, 91.4%);
+  --sidebar-ring: hsl(221.2, 83.2%, 53.3%);
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --font-serif: "Georgia", "Times New Roman", serif;
+  --font-mono: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
+  --radius: 0.5rem;
+  --shadow-2xs: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
+  --shadow-xs: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0px 1px 2px 0px rgba(0, 0, 0, 0.05), 0px 1px 3px 0px rgba(0, 0, 0, 0.1);
+  --shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.05), 0px 1px 3px 0px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0px 20px 25px -5px rgba(0, 0, 0, 0.1), 0px 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0px 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
+}
+
+.dark {
+  --background: hsl(222.2, 84%, 4.9%);
+  --foreground: hsl(210, 40%, 98%);
+  --card: hsl(222.2, 84%, 4.9%);
+  --card-foreground: hsl(210, 40%, 98%);
+  --popover: hsl(222.2, 84%, 4.9%);
+  --popover-foreground: hsl(210, 40%, 98%);
+  --primary: hsl(217.2, 91.2%, 59.8%);
+  --primary-foreground: hsl(222.2, 84%, 4.9%);
+  --secondary: hsl(217.2, 32.6%, 17.5%);
+  --secondary-foreground: hsl(210, 40%, 98%);
+  --muted: hsl(217.2, 32.6%, 17.5%);
+  --muted-foreground: hsl(215, 20.2%, 65.1%);
+  --accent: hsl(217.2, 32.6%, 17.5%);
+  --accent-foreground: hsl(210, 40%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --border: hsl(217.2, 32.6%, 17.5%);
+  --input: hsl(217.2, 32.6%, 17.5%);
+  --ring: hsl(224.3, 76.3%, 94.1%);
+  --chart-1: hsl(217.2, 91.2%, 59.8%);
+  --chart-2: hsl(159.7826, 100%, 36.0784%);
+  --chart-3: hsl(42.0290, 92.8251%, 56.2745%);
+  --chart-4: hsl(147.1429, 78.5047%, 41.9608%);
+  --chart-5: hsl(341.4894, 75.2000%, 50.9804%);
+  --sidebar: hsl(222.2, 84%, 4.9%);
+  --sidebar-foreground: hsl(210, 40%, 98%);
+  --sidebar-primary: hsl(217.2, 91.2%, 59.8%);
+  --sidebar-primary-foreground: hsl(222.2, 84%, 4.9%);
+  --sidebar-accent: hsl(217.2, 32.6%, 17.5%);
+  --sidebar-accent-foreground: hsl(210, 40%, 98%);
+  --sidebar-border: hsl(217.2, 32.6%, 17.5%);
+  --sidebar-ring: hsl(224.3, 76.3%, 94.1%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+
+  /* Ensure Font Awesome icons are loaded and displayed properly */
+  .fab, .fas, .far, .fal, .fad, .fa {
+    font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
+  }
+
+  .fab {
+    font-weight: 400;
+  }
+
+  .fas, .far, .fal, .fad, .fa {
+    font-weight: 900;
+  }
+}
+
+@layer components {
+  /* Main layout components matching the design reference */
+  .slack-header {
+    @apply bg-card border-b border-border px-6 py-4;
+  }
+
+  .slack-sidebar {
+    @apply w-64 bg-card border-r border-border h-screen sticky top-0;
+  }
+
+  /* Navigation buttons with exact styling from design */
+  .nav-button {
+    @apply w-full flex items-center space-x-3 px-3 py-2 rounded-md transition-colors font-medium;
+  }
+
+  .nav-button.active {
+    @apply bg-primary text-primary-foreground;
+  }
+
+  .nav-button.inactive {
+    @apply text-muted-foreground hover:bg-accent hover:text-accent-foreground;
+  }
+
+  /* Channel items in sidebar */
+  .channel-item {
+    @apply flex items-center space-x-2 px-2 py-1 rounded text-sm text-muted-foreground hover:bg-accent cursor-pointer transition-colors;
+  }
+
+  /* Statistics cards matching the design */
+  .stat-card {
+    @apply bg-card border border-border rounded-lg p-4;
+  }
+  
+  .stat-icon {
+    @apply w-10 h-10 rounded-lg flex items-center justify-center;
+  }
+  
+  .stat-icon.green {
+    @apply bg-green-100 dark:bg-green-900;
+  }
+  
+  .stat-icon.yellow {
+    @apply bg-yellow-100 dark:bg-yellow-900;
+  }
+  
+  .stat-icon.blue {
+    @apply bg-blue-100 dark:bg-blue-900;
+  }
+
+  /* Table styling for scheduled messages */
+  .message-table {
+    @apply w-full;
+  }
+
+  .message-table th {
+    @apply text-left p-4 text-sm font-medium text-muted-foreground bg-muted/50;
+  }
+
+  .message-table td {
+    @apply p-4;
+  }
+
+  .message-row {
+    @apply border-b border-border hover:bg-muted/30 transition-colors;
+  }
+
+  /* Status badges with proper colors */
+  .status-badge {
+    @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium;
+  }
+
+  .status-pending {
+    @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200;
+  }
+
+  .status-sending {
+    @apply bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200;
+  }
+
+  .status-sent {
+    @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200;
+  }
+
+  .status-failed {
+    @apply bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200;
+  }
+
+  .status-cancelled {
+    @apply bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200;
+  }
+
+  /* Form styling matching the design */
+  .schedule-section {
+    @apply bg-muted rounded-lg p-4;
+  }
+
+  .schedule-inputs {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+  }
+
+  /* Connection status indicator */
+  .connection-status {
+    @apply flex items-center space-x-2 text-sm text-muted-foreground;
+  }
+
+  .connection-dot {
+    @apply w-2 h-2 bg-green-500 rounded-full;
+  }
+
+  /* Action buttons styling */
+  .action-buttons {
+    @apply flex space-x-3;
+  }
+
+  /* Modal styling */
+  .modal-icon-container {
+    @apply w-10 h-10 bg-destructive/10 rounded-lg flex items-center justify-center;
+  }
+
+  /* Character counter styling */
+  .character-counter {
+    @apply text-xs text-muted-foreground;
+  }
+
+  .character-counter.over-limit {
+    @apply text-destructive;
+  }
+
+  /* Loading states */
+  .loading-spinner {
+    @apply w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin;
+  }
+
+  /* Toast notification styling */
+  .toast-success {
+    @apply bg-green-500 text-white;
+  }
+
+  .toast-error {
+    @apply bg-destructive text-destructive-foreground;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .slack-sidebar {
+      @apply w-full h-auto sticky top-0 border-r-0 border-b border-border;
+    }
+
+    .schedule-inputs {
+      @apply grid-cols-1;
+    }
+
+    .action-buttons {
+      @apply flex-col space-x-0 space-y-2;
+    }
+  }
+
+  /* Hover states for interactive elements */
+  .hover-card:hover {
+    @apply shadow-md transform translate-y-0.5 transition-all duration-200;
+  }
+
+  /* Focus states for accessibility */
+  .focus-ring:focus {
+    @apply outline-none ring-2 ring-ring ring-offset-2;
+  }
+
+  /* Table header specific styling */
+  .table-header {
+    @apply bg-muted/50 text-left p-4 text-sm font-medium text-muted-foreground;
+  }
+
+  /* Message preview truncation */
+  .message-preview {
+    @apply max-w-xs text-sm text-foreground truncate;
+  }
+
+  .message-meta {
+    @apply text-xs text-muted-foreground mt-1;
+  }
+
+  /* Empty state styling */
+  .empty-state {
+    @apply p-8 text-center;
+  }
+
+  .empty-state-icon {
+    @apply w-16 h-16 bg-muted rounded-lg flex items-center justify-center mx-auto mb-4;
+  }
+
+  /* Badge with count */
+  .count-badge {
+    @apply ml-auto bg-muted text-muted-foreground px-2 py-0.5 rounded-full text-xs;
+  }
+
+  /* Form section styling */
+  .form-section {
+    @apply bg-card rounded-lg border border-border p-6;
+  }
+
+  .form-section-title {
+    @apply text-lg font-semibold text-foreground mb-4;
+  }
+
+  /* Quick stats grid */
+  .stats-grid {
+    @apply grid grid-cols-1 md:grid-cols-3 gap-4;
+  }
+
+  /* Pagination styling */
+  .pagination {
+    @apply p-4 border-t border-border bg-muted bg-opacity-30 flex items-center justify-between;
+  }
+
+  .pagination-info {
+    @apply text-sm text-muted-foreground;
+  }
+
+  .pagination-buttons {
+    @apply flex items-center space-x-2;
+  }
+
+  .pagination-button {
+    @apply px-3 py-1 text-sm border border-border rounded hover:bg-accent transition-colors;
+  }
+
+  .pagination-button:disabled {
+    @apply opacity-50 cursor-not-allowed hover:bg-transparent;
+  }
+
+  /* Header logo styling */
+  .header-logo {
+    @apply w-8 h-8 bg-primary rounded-lg flex items-center justify-center;
+  }
+
+  .header-logo i {
+    @apply text-primary-foreground text-lg;
+  }
+
+  /* Sidebar section styling */
+  .sidebar-section {
+    @apply p-4 border-t border-border;
+  }
+
+  .sidebar-section-title {
+    @apply text-sm font-medium text-foreground mb-3;
+  }
+
+  /* Form input styling adjustments */
+  .form-input {
+    @apply w-full px-3 py-2 border border-input bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-ring transition-colors;
+  }
+
+  .form-textarea {
+    @apply w-full px-3 py-2 border border-input bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-ring resize-none transition-colors;
+  }
+
+  .form-select {
+    @apply w-full px-3 py-2 border border-input bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-ring transition-colors;
+  }
+}
+
+@layer utilities {
+  /* Utility classes for specific design patterns */
+  .text-brand {
+    color: var(--primary);
+  }
+
+  .bg-brand {
+    background-color: var(--primary);
+  }
+
+  .border-brand {
+    border-color: var(--primary);
+  }
+
+  /* Status-specific utilities */
+  .text-success {
+    @apply text-green-600 dark:text-green-400;
+  }
+
+  .text-warning {
+    @apply text-yellow-600 dark:text-yellow-400;
+  }
+
+  .text-danger {
+    @apply text-red-600 dark:text-red-400;
+  }
+
+  .bg-success-light {
+    @apply bg-green-100 dark:bg-green-900;
+  }
+
+  .bg-warning-light {
+    @apply bg-yellow-100 dark:bg-yellow-900;
+  }
+
+  .bg-danger-light {
+    @apply bg-red-100 dark:bg-red-900;
+  }
+
+  /* Animation utilities */
+  .animate-fade-in {
+    animation: fade-in 0.2s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.3s ease-out;
+  }
+}
+
+/* Custom animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-only {
+    display: block !important;
+  }
+}
