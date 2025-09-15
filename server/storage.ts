@@ -7,7 +7,7 @@ import {
   type InsertSlackChannel,
   type User, 
   type InsertUser 
-} from "@shared/schema";
+} from "server/shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
