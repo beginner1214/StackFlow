@@ -19,7 +19,7 @@ pnpm-debug.log*
 .idea
 *.iml
 out
-
+env
 # Local env files
 .env.local
 .env.*.local        
