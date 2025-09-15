@@ -10,12 +10,21 @@ import { Button } from "./ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "./ui/form";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import { Checkbox } from "./ui/checkbox";
 
 const messageSchema = z.object({
   channel: z.string().min(1, "Channel is required"),
-  content: z.string().min(1, "Message content is required").max(4000, "Message too long"),
+  content: z
+    .string()
+    .min(1, "Message content is required")
+    .max(4000, "Message too long"),
   isScheduled: z.boolean().default(false),
   scheduledDate: z.string().optional(),
   scheduledTime: z.string().optional(),
@@ -38,12 +47,14 @@ export default function ComposeSection() {
     },
   });
 
-  const { data: channels, isLoading: channelsLoading } = useQuery<Array<{
-    id: string;
-    name: string;
-    isPrivate: boolean;
-  }>>({
-    queryKey: ['/api/slack/channels', teamId, userId],
+  const { data: channels, isLoading: channelsLoading } = useQuery<
+    Array<{
+      id: string;
+      name: string;
+      isPrivate: boolean;
+    }>
+  >({
+    queryKey: ["/api/slack/channels", teamId, userId],
     enabled: !!(teamId && userId),
   });
 
@@ -52,13 +63,13 @@ export default function ComposeSection() {
     scheduledMessages: number;
     activeChannels: number;
   }>({
-    queryKey: ['/api/messages/stats', teamId, userId],
+    queryKey: ["/api/messages/stats", teamId, userId],
     enabled: !!(teamId && userId),
   });
 
   const sendMessageMutation = useMutation({
     mutationFn: async (data: { channel: string; message: string }) => {
-      return apiRequest('POST', `/api/slack/send/${teamId}/${userId}`, data);
+      return apiRequest("POST", `/api/slack/send/${teamId}/${userId}`, data);
     },
     onSuccess: () => {
       toast({
@@ -71,7 +82,8 @@ export default function ComposeSection() {
     onError: (error) => {
       toast({
         title: "Failed to Send",
-        description: error instanceof Error ? error.message : "Failed to send message",
+        description:
+          error instanceof Error ? error.message : "Failed to send message",
         variant: "destructive",
       });
     },
@@ -79,7 +91,11 @@ export default function ComposeSection() {
 
   const scheduleMessageMutation = useMutation({
     mutationFn: async (data: any) => {
-      return apiRequest('POST', `/api/messages/schedule/${teamId}/${userId}`, data);
+      return apiRequest(
+        "POST",
+        `/api/messages/schedule/${teamId}/${userId}`,
+        data
+      );
     },
     onSuccess: () => {
       toast({
@@ -92,7 +108,8 @@ export default function ComposeSection() {
     onError: (error) => {
       toast({
         title: "Failed to Schedule",
-        description: error instanceof Error ? error.message : "Failed to schedule message",
+        description:
+          error instanceof Error ? error.message : "Failed to schedule message",
         variant: "destructive",
       });
     },
@@ -103,14 +120,17 @@ export default function ComposeSection() {
       if (!data.scheduledDate || !data.scheduledTime) {
         toast({
           title: "Invalid Schedule",
-          description: "Please specify both date and time for scheduled messages",
+          description:
+            "Please specify both date and time for scheduled messages",
           variant: "destructive",
         });
         return;
       }
 
-      const scheduledFor = new Date(`${data.scheduledDate}T${data.scheduledTime}`);
-      
+      const scheduledFor = new Date(
+        `${data.scheduledDate}T${data.scheduledTime}`
+      );
+
       if (scheduledFor <= new Date()) {
         toast({
           title: "Invalid Schedule",
@@ -125,7 +145,7 @@ export default function ComposeSection() {
         content: data.content,
         scheduledFor: scheduledFor.toISOString(),
         timezone: data.timezone,
-        status: 'pending',
+        status: "pending",
       };
 
       scheduleMessageMutation.mutate(scheduleData);
@@ -141,15 +161,17 @@ export default function ComposeSection() {
     form.reset();
   };
 
-  const isScheduled = form.watch('isScheduled');
-  const content = form.watch('content');
+  const isScheduled = form.watch("isScheduled");
+  const content = form.watch("content");
   const characterCount = content?.length || 0;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="bg-card rounded-lg border border-border p-6">
-        <h2 className="text-lg font-semibold text-foreground mb-4">Compose Message</h2>
-        
+        <h2 className="text-lg font-semibold text-foreground mb-4">
+          Compose Message
+        </h2>
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -166,15 +188,19 @@ export default function ComposeSection() {
                     </FormControl>
                     <SelectContent>
                       {channelsLoading ? (
-                        <SelectItem value="" disabled>Loading channels...</SelectItem>
+                        <SelectItem value="loading" disabled>
+                          Loading channels...
+                        </SelectItem>
                       ) : channels?.length ? (
                         channels.map((channel: any) => (
                           <SelectItem key={channel.id} value={channel.id}>
-                            {channel.isPrivate ? '🔒' : '#'} {channel.name}
+                            {channel.isPrivate ? "🔒" : "#"} {channel.name}
                           </SelectItem>
                         ))
                       ) : (
-                        <SelectItem value="" disabled>No channels available</SelectItem>
+                        <SelectItem value="no-channels" disabled>
+                          No channels available
+                        </SelectItem>
                       )}
                     </SelectContent>
                   </Select>
@@ -189,7 +215,7 @@ export default function ComposeSection() {
                 <FormItem>
                   <FormLabel>Message</FormLabel>
                   <FormControl>
-                    <Textarea 
+                    <Textarea
                       placeholder="Type your message here..."
                       className="resize-none"
                       rows={4}
@@ -198,7 +224,14 @@ export default function ComposeSection() {
                     />
                   </FormControl>
                   <div className="flex justify-between items-center mt-2">
-                    <span className={`text-xs ${characterCount > 4000 ? 'text-destructive' : 'text-muted-foreground'}`} data-testid="text-character-count">
+                    <span
+                      className={`text-xs ${
+                        characterCount > 4000
+                          ? "text-destructive"
+                          : "text-muted-foreground"
+                      }`}
+                      data-testid="text-character-count"
+                    >
                       {characterCount} / 4000 characters
                     </span>
                   </div>
@@ -213,7 +246,7 @@ export default function ComposeSection() {
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-start space-x-3 space-y-0 mb-3">
                     <FormControl>
-                      <Checkbox 
+                      <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
                         data-testid="checkbox-schedule"
@@ -225,7 +258,7 @@ export default function ComposeSection() {
                   </FormItem>
                 )}
               />
-              
+
               {isScheduled && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
@@ -235,7 +268,11 @@ export default function ComposeSection() {
                       <FormItem>
                         <FormLabel>Date</FormLabel>
                         <FormControl>
-                          <Input type="date" data-testid="input-date" {...field} />
+                          <Input
+                            type="date"
+                            data-testid="input-date"
+                            {...field}
+                          />
                         </FormControl>
                       </FormItem>
                     )}
@@ -247,7 +284,11 @@ export default function ComposeSection() {
                       <FormItem>
                         <FormLabel>Time</FormLabel>
                         <FormControl>
-                          <Input type="time" data-testid="input-time" {...field} />
+                          <Input
+                            type="time"
+                            data-testid="input-time"
+                            {...field}
+                          />
                         </FormControl>
                       </FormItem>
                     )}
@@ -259,17 +300,28 @@ export default function ComposeSection() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Timezone</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
                             <FormControl>
                               <SelectTrigger data-testid="select-timezone">
                                 <SelectValue />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="UTC">UTC (Coordinated Universal Time)</SelectItem>
-                              <SelectItem value="America/New_York">EST (Eastern Standard Time)</SelectItem>
-                              <SelectItem value="America/Los_Angeles">PST (Pacific Standard Time)</SelectItem>
-                              <SelectItem value="Europe/London">GMT (Greenwich Mean Time)</SelectItem>
+                              <SelectItem value="UTC">
+                                UTC (Coordinated Universal Time)
+                              </SelectItem>
+                              <SelectItem value="America/New_York">
+                                EST (Eastern Standard Time)
+                              </SelectItem>
+                              <SelectItem value="America/Los_Angeles">
+                                PST (Pacific Standard Time)
+                              </SelectItem>
+                              <SelectItem value="Europe/London">
+                                GMT (Greenwich Mean Time)
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                         </FormItem>
@@ -281,16 +333,19 @@ export default function ComposeSection() {
             </div>
 
             <div className="flex space-x-3">
-              <Button 
-                type="submit" 
-                disabled={sendMessageMutation.isPending || scheduleMessageMutation.isPending}
+              <Button
+                type="submit"
+                disabled={
+                  sendMessageMutation.isPending ||
+                  scheduleMessageMutation.isPending
+                }
                 data-testid="button-send"
               >
                 <i className="fas fa-paper-plane mr-2"></i>
-                {isScheduled ? 'Schedule Message' : 'Send Now'}
+                {isScheduled ? "Schedule Message" : "Send Now"}
               </Button>
-              <Button 
-                type="button" 
+              <Button
+                type="button"
                 variant="secondary"
                 onClick={handleClear}
                 data-testid="button-clear"
@@ -311,7 +366,10 @@ export default function ComposeSection() {
             </div>
             <div>
               <h3 className="font-medium text-foreground">Messages Sent</h3>
-              <p className="text-2xl font-bold text-foreground" data-testid="text-messages-sent">
+              <p
+                className="text-2xl font-bold text-foreground"
+                data-testid="text-messages-sent"
+              >
                 {stats?.messagesSent || 0}
               </p>
             </div>
@@ -324,7 +382,10 @@ export default function ComposeSection() {
             </div>
             <div>
               <h3 className="font-medium text-foreground">Scheduled</h3>
-              <p className="text-2xl font-bold text-foreground" data-testid="text-scheduled-messages">
+              <p
+                className="text-2xl font-bold text-foreground"
+                data-testid="text-scheduled-messages"
+              >
                 {stats?.scheduledMessages || 0}
               </p>
             </div>
@@ -337,7 +398,10 @@ export default function ComposeSection() {
             </div>
             <div>
               <h3 className="font-medium text-foreground">Active Channels</h3>
-              <p className="text-2xl font-bold text-foreground" data-testid="text-active-channels">
+              <p
+                className="text-2xl font-bold text-foreground"
+                data-testid="text-active-channels"
+              >
                 {stats?.activeChannels || 0}
               </p>
             </div>

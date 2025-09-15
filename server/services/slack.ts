@@ -4,10 +4,7 @@ import { WebClient } from "@slack/web-api";
 import { storage } from "../storage";
 import type { SlackToken } from "../shared/schema";
 import { randomBytes } from "crypto";
-console.log('SLACK_CLIENT_ID:', process.env.SLACK_CLIENT_ID);
-console.log('SLACK_CLIENT_SECRET:', process.env.SLACK_CLIENT_SECRET);
-console.log('SLACK_REDIRECT_URI:', process.env.SLACK_REDIRECT_URI);
-console.log
+
 class SlackService {
   private clients: Map<string, WebClient> = new Map();
 
